@@ -1,303 +1,460 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LinkedIn Photo AI</title>
   <style>
-    :root {
-      --primary: #0a66c2;
-      --primary-hover: #004182;
-      --bg: #f3f6f8;
-      --card: #ffffff;
-      --text: #000000de;
-      --text-secondary: #00000099;
-      --border: #00000014;
-      --success: #057642;
-    }
-    * { box-sizing: border-box; }
-    body {
+    * {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: var(--bg);
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #000000;
+      --surface: rgba(255, 255, 255, 0.08);
+      --surface-hover: rgba(255, 255, 255, 0.12);
+      --text: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --accent: #0a84ff;
+      --accent-hover: #409cff;
+      --success: #30d158;
+      --error: #ff453a;
+      --blur: blur(40px);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      background: linear-gradient(135deg, #000000 0%, #1a1a2e 100%);
       color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding-top: 40px;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .main-card {
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 40px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 60px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .upload-zone:hover {
+      border-color: var(--accent);
+      background: rgba(10, 132, 255, 0.08);
+      transform: scale(1.01);
+    }
+
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(10, 132, 255, 0.12);
+      transform: scale(1.02);
+    }
+
+    .upload-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, var(--accent), #409cff);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
+      font-size: 40px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .container {
-      max-width: 900px;
-      width: 100%;
+
+    .upload-zone:hover .upload-icon {
+      transform: scale(1.1);
     }
-    .card {
-      background: var(--card);
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      padding: 40px;
-      margin-bottom: 20px;
-    }
-    h1 {
-      font-size: 32px;
-      font-weight: 600;
-      margin: 0 0 8px;
-      color: var(--text);
-    }
-    .subtitle {
-      font-size: 16px;
-      color: var(--text-secondary);
-      margin: 0 0 32px;
-    }
-    .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: 12px;
-      padding: 48px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 24px;
-    }
-    .upload-zone:hover {
-      border-color: var(--primary);
-      background: #0a66c20a;
-    }
-    .upload-zone.dragover {
-      border-color: var(--primary);
-      background: #0a66c214;
-    }
-    .upload-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
+
     .upload-text {
-      font-size: 16px;
-      color: var(--text);
-      font-weight: 500;
+      font-size: 24px;
+      font-weight: 600;
       margin-bottom: 8px;
+      letter-spacing: -0.02em;
     }
+
     .upload-hint {
-      font-size: 14px;
       color: var(--text-secondary);
+      font-size: 16px;
     }
-    input[type=file] {
+
+    input[type="file"] {
       display: none;
     }
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 24px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn:hover:not(:disabled) {
-      background: var(--primary-hover);
-    }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: white;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-    }
-    .btn-secondary:hover:not(:disabled) {
-      background: #f3f6f8;
-    }
+
+    /* Preview Grid */
     .preview-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 24px;
+      gap: 30px;
+      margin-top: 40px;
     }
+
     @media (max-width: 768px) {
-      .preview-grid { grid-template-columns: 1fr; }
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
     }
-    .preview-box {
-      position: relative;
+
+    .preview-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .preview-label {
+
+    .preview-card h3 {
       font-size: 14px;
       font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .preview-img {
-      width: 100%;
-      border-radius: 12px;
-      display: block;
-      border: 1px solid var(--border);
-    }
-    .loader {
-      text-align: center;
-      padding: 48px;
-    }
-    .spinner {
-      border: 3px solid #f3f6f8;
-      border-top: 3px solid var(--primary);
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 16px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .loader-text {
-      font-size: 16px;
+      letter-spacing: 0.05em;
       color: var(--text-secondary);
+      margin-bottom: 16px;
     }
-    .actions {
+
+    .preview-image {
+      width: 100%;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    /* Loading State */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       display: flex;
-      gap: 12px;
-      margin-top: 24px;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
     }
-    .success-badge {
+
+    .loading-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .loading-content {
+      text-align: center;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 24px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .loading-hint {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    /* Button */
+    .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      background: #05764214;
-      color: var(--success);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
+      padding: 16px 32px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
       font-weight: 600;
-      margin-top: 16px;
-    }
-    .footer {
-      text-align: center;
-      font-size: 14px;
-      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: -0.01em;
       margin-top: 24px;
     }
-    .footer a {
-      color: var(--primary);
+
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: scale(1.02);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 32px;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-hover);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: auto;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    footer a {
+      color: var(--accent);
       text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    footer a:hover {
+      opacity: 0.8;
+    }
+
+    /* Hidden */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.error {
+      background: rgba(255, 69, 58, 0.2);
+      border-color: var(--error);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="card">
+    <header>
       <h1>✨ LinkedIn Photo AI</h1>
-      <p class="subtitle">Transformez votre selfie en photo de profil professionnelle avec l'IA</p>
+      <p class="subtitle">Transformez votre selfie en photo LinkedIn professionnelle</p>
+    </header>
 
-      <div id="uploadSection">
-        <div class="upload-zone" id="uploadZone">
-          <div class="upload-icon">📸</div>
-          <div class="upload-text">Cliquez ou glissez une photo</div>
-          <div class="upload-hint">JPG, PNG • Recommandé : cadrage tête + épaules</div>
-        </div>
-        <input type="file" id="fileInput" accept="image/*" />
-      </div>
-
-      <div id="processingSection" style="display:none;">
-        <div class="loader">
-          <div class="spinner"></div>
-          <div class="loader-text">Transformation en cours avec Gemini AI...</div>
-        </div>
-      </div>
-
-      <div id="resultSection" style="display:none;">
-        <div class="success-badge">
-          <span>✓</span>
-          <span>Photo transformée</span>
-        </div>
-
-        <div class="preview-grid">
-          <div class="preview-box">
-            <div class="preview-label">Original</div>
-            <img id="originalPreview" class="preview-img" alt="Original" />
-          </div>
-          <div class="preview-box">
-            <div class="preview-label">LinkedIn Pro</div>
-            <img id="resultPreview" class="preview-img" alt="Résultat" />
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn" id="downloadBtn">
-            <span>⬇</span>
-            <span>Télécharger</span>
-          </button>
-          <button class="btn btn-secondary" id="resetBtn">
-            <span>🔄</span>
-            <span>Nouvelle photo</span>
-          </button>
-        </div>
+    <div class="main-card" id="uploadCard">
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">📸</div>
+        <div class="upload-text">Glissez votre photo ici</div>
+        <div class="upload-hint">ou cliquez pour sélectionner • JPG, PNG</div>
+        <input type="file" id="fileInput" accept="image/jpeg,image/png">
       </div>
     </div>
 
-    <div class="footer">
-      Propulsé par <a href="https://deepmind.google/technologies/gemini/" target="_blank">Gemini 3.0 Flash</a>
+    <div class="main-card hidden" id="previewCard">
+      <div class="preview-grid">
+        <div class="preview-card">
+          <h3>Original</h3>
+          <img id="originalImg" class="preview-image" alt="Photo originale">
+        </div>
+        <div class="preview-card">
+          <h3>Transformée</h3>
+          <img id="transformedImg" class="preview-image" alt="Photo transformée">
+        </div>
+      </div>
+      
+      <div class="actions">
+        <button class="btn" id="downloadBtn">
+          <span>⬇️</span>
+          <span>Télécharger</span>
+        </button>
+        <button class="btn btn-secondary" id="resetBtn">
+          <span>🔄</span>
+          <span>Nouvelle photo</span>
+        </button>
+      </div>
     </div>
   </div>
 
-<script>
-  const uploadZone = document.getElementById('uploadZone');
-  const fileInput = document.getElementById('fileInput');
-  const uploadSection = document.getElementById('uploadSection');
-  const processingSection = document.getElementById('processingSection');
-  const resultSection = document.getElementById('resultSection');
-  const originalPreview = document.getElementById('originalPreview');
-  const resultPreview = document.getElementById('resultPreview');
-  const downloadBtn = document.getElementById('downloadBtn');
-  const resetBtn = document.getElementById('resetBtn');
+  <footer>
+    Propulsé par <a href="https://deepmind.google/technologies/gemini/" target="_blank">Gemini 3 Pro</a>
+  </footer>
 
-  let resultImageUrl = null;
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <div class="loading-text">Transformation en cours...</div>
+      <div class="loading-hint">L'IA optimise votre photo</div>
+    </div>
+  </div>
 
-  uploadZone.addEventListener('click', () => fileInput.click());
+  <div class="toast" id="toast"></div>
 
-  uploadZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadZone.classList.add('dragover');
-  });
+  <script>
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadCard = document.getElementById('uploadCard');
+    const previewCard = document.getElementById('previewCard');
+    const originalImg = document.getElementById('originalImg');
+    const transformedImg = document.getElementById('transformedImg');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const toast = document.getElementById('toast');
 
-  uploadZone.addEventListener('dragleave', () => {
-    uploadZone.classList.remove('dragover');
-  });
+    let transformedImageUrl = null;
 
-  uploadZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadZone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      processFile(file);
-    }
-  });
+    // Click to upload
+    uploadZone.addEventListener('click', () => fileInput.click());
 
-  fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) processFile(file);
-  });
+    // Drag and drop
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
 
-  async function processFile(file) {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const dataUrl = e.target.result;
-      originalPreview.src = dataUrl;
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
 
-      uploadSection.style.display = 'none';
-      processingSection.style.display = 'block';
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        handleFile(file);
+      }
+    });
+
+    // File input
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) handleFile(file);
+    });
+
+    // Handle file
+    async function handleFile(file) {
+      // Validate
+      if (!file.type.match(/image\/(jpeg|png)/)) {
+        showToast('Format non supporté. Utilisez JPG ou PNG.', true);
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('Image trop grande. Maximum 10 MB.', true);
+        return;
+      }
+
+      // Show original
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        originalImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      // Transform
+      loadingOverlay.classList.add('active');
 
       try {
+        const base64 = await fileToBase64(file);
         const response = await fetch('/api/transform', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: dataUrl })
+          body: JSON.stringify({ image: base64 })
         });
 
         const data = await response.json();
@@ -306,36 +463,57 @@
           throw new Error(data.error || 'Transformation failed');
         }
 
-        resultImageUrl = data.image;
-        resultPreview.src = resultImageUrl;
+        transformedImageUrl = data.image;
+        transformedImg.src = transformedImageUrl;
 
-        processingSection.style.display = 'none';
-        resultSection.style.display = 'block';
+        uploadCard.classList.add('hidden');
+        previewCard.classList.remove('hidden');
+        showToast('✨ Photo transformée avec succès !');
 
       } catch (error) {
-        alert('Erreur : ' + error.message);
-        reset();
+        console.error('Error:', error);
+        showToast('Erreur : ' + error.message, true);
+      } finally {
+        loadingOverlay.classList.remove('active');
       }
-    };
-    reader.readAsDataURL(file);
-  }
+    }
 
-  downloadBtn.addEventListener('click', () => {
-    const a = document.createElement('a');
-    a.href = resultImageUrl;
-    a.download = 'linkedin-photo-pro.png';
-    a.click();
-  });
+    // Download
+    downloadBtn.addEventListener('click', () => {
+      if (!transformedImageUrl) return;
+      
+      const a = document.createElement('a');
+      a.href = transformedImageUrl;
+      a.download = 'linkedin-photo-pro.png';
+      a.click();
+      
+      showToast('📥 Téléchargement lancé');
+    });
 
-  resetBtn.addEventListener('click', reset);
+    // Reset
+    resetBtn.addEventListener('click', () => {
+      previewCard.classList.add('hidden');
+      uploadCard.classList.remove('hidden');
+      fileInput.value = '';
+      transformedImageUrl = null;
+    });
 
-  function reset() {
-    uploadSection.style.display = 'block';
-    processingSection.style.display = 'none';
-    resultSection.style.display = 'none';
-    fileInput.value = '';
-    resultImageUrl = null;
-  }
-</script>
+    // Utils
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function showToast(message, isError = false) {
+      toast.textContent = message;
+      toast.classList.toggle('error', isError);
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
 </body>
 </html>
