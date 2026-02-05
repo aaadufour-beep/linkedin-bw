@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.0-pro-image-preview' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-pro-image-preview' });
 
     // Extract base64 data
     const base64Data = image.split(',')[1];
